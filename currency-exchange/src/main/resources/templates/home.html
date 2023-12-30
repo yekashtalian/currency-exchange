@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Currency Exchange Web App</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container">
+        <div class="navbar-header">
+            <span class="navbar-brand"> Currency Exchange Web App</span>
+        </div>
+    </div>
+</nav>
+
+<div class="container" style="min-height: 500px">
+
+    <div class="starter-template">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-header">Select exchange currencies</div>
+                    <div class="card-body">
+                        <form action="/search" method="get" class="form-inline" id="search-form">
+                            <label class="my-1 mr-2" for="fromCurrency">From</label>
+                            <select class="custom-select my-1 mr-sm-2" id="fromCurrency" name="fromCurrency">
+                                <option value="" disabled selected>Select currency</option>
+                                <option th:each="c:${currencies}" th:value="${c.code}" th:text="${c.code}" th:title="${c.name}"></option>
+                            </select>
+
+                            <label class="my-1 mr-2" for="toCurrency">To</label>
+                            <select class="custom-select my-1 mr-sm-2" id="toCurrency" name="toCurrency">
+                                <option value="" disabled selected>Select currency</option>
+                                <option th:each="c:${currencies}" th:value="${c.code}" th:text="${c.code}" th:title="${c.name}"></option>
+                            </select>
+                            <button type="submit" class="btn btn-primary my-1" id="btn-search">Submit</button>
+                        </form>
+                        <div id="descriptionFromCurrency"></div>
+                        <div id="descriptionToCurrency"></div>
+                    </div>
+                    <div class="card-footer text-muted" id="search-form-footer"></div>
+                </div>
+            </div>
+            <div class="col-sm-6" id="realtime-panel">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12" id="graph-panel">
+            </div>
+            <div id='periods'>
+            </div>
+        </div>
+        <!-- Інші елементи вашого інтерфейсу -->
+        <div class="container">
+            <button id="show-analysis-btn" class="btn btn-info my-3">Perform GPT Analysis</button>
+            <div id="analysis-container" class="analysis" style="display: none;"> <!-- Схований контейнер для аналітики -->
+                <!-- Тут буде аналіз -->
+            </div>
+        </div>
+
+    </div>
+</div>
+<br>
+
+<script
+        src="https://code.jquery.com/jquery-2.2.4.min.js"
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script type="text/javascript" th:src="@{/js/app.js}"></script>
+<script>
+    $("#show-analysis-btn").click(function() {
+    var fromCurrency = $("#fromCurrency").val();
+    var toCurrency = $("#toCurrency").val();
+
+    $.ajax({
+        type: "GET",
+        url: "/get-analysis",
+        data: {
+            fromCurrency: fromCurrency,
+            toCurrency: toCurrency
+        }
+    }).done(function(response) {
+        $("#analysis-container").text(response).show();
+    }).fail(function(error) {
+        alert("Помилка при отриманні аналізу: " + error.responseText);
+    });
+});
+
+</script>
+</body>
+</html>
